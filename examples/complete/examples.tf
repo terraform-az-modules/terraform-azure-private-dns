@@ -7,8 +7,8 @@ provider "azurerm" {
 ## Resource group in which all resources will be deployed.
 ##-----------------------------------------------------------------------------
 module "resource_group" {
-  source      = "clouddrove/resource-group/azure"
-  version     = "1.0.2"
+  source      = "terraform-az-modules/resource-group/azure"
+  version     = "1.0.0"
   name        = "dns"
   environment = "testing"
   label_order = ["name", "environment"]
