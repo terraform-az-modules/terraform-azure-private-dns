@@ -32,7 +32,7 @@ variable "environment" {
 }
 
 variable "label_order" {
-  type        = list(any)
+  type        = list(string)
   default     = ["name", "environment", "location"]
   description = "The order of labels used to construct resource names or tags. If not specified, defaults to ['name', 'environment', 'location']."
 }

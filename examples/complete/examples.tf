@@ -9,10 +9,10 @@ provider "azurerm" {
 module "resource_group" {
   source      = "terraform-az-modules/resource-group/azure"
   version     = "1.0.0"
-  name        = "dns"
-  environment = "testing"
-  label_order = ["name", "environment"]
+  name        = "app"
+  environment = "dev"
   location    = "eastus"
+  label_order = ["name", "environment", "location"]
 }
 
 ##-----------------------------------------------------------------------------
