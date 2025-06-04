@@ -15,7 +15,7 @@ variable "location" {
 
 variable "repository" {
   type        = string
-  default     = "https://github.com/terraform-az-modules/terraform-azure-resource-group"
+  default     = "https://github.com/terraform-az-modules/terraform-azure-private-dns"
   description = "Terraform current module repo"
 
   validation {
