@@ -41,11 +41,11 @@ module "private_dns" {
   private_dns_config = [
     {
       resource_type = "key_vault"
-      vnet_ids      = [module.vnet.vnet_id, module.vnet.vnet_id]
+      vnet_ids      = [module.vnet.vnet_id]
     },
     {
       resource_type = "storage_account"
-      vnet_ids      = [module.vnet.vnet_id]
+      vnet_ids      = [module.vnet.vnet_id] # can pass multiple vnet ids 
     }
     # {
     #   resource_type = "custom_dns"
@@ -57,6 +57,6 @@ module "private_dns" {
   #Tags
   location    = module.resource_group.resource_group_location
   name        = "dns"
-  environment = "testing"
+  environment = "dev"
 }
 

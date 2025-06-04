@@ -46,4 +46,5 @@ resource "azurerm_private_dns_zone_virtual_network_link" "this" {
   private_dns_zone_name = local.dns_zone_map[each.value.resource_type]
   virtual_network_id    = each.value.vnet_id
   registration_enabled  = false
+  tags                  = module.labels.tags
 }
