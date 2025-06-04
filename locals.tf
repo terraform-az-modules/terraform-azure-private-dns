@@ -46,10 +46,21 @@ locals {
 
   zone_configs = { for cfg in var.private_dns_config : cfg.resource_type => cfg if contains(keys(local.dns_zone_map), cfg.resource_type) }
 
-  test = {
+  resource_vnets = {
     for cfg in var.private_dns_config :
     cfg.resource_type => cfg.vnet_ids
     if contains(keys(local.dns_zone_map), cfg.resource_type)
   }
 
+  dns_vnet_link_map = {
+    for pair in flatten([
+      for resource_type, vnet_ids in local.resource_vnets : [
+        for idx, vnet_id in vnet_ids : {
+          key           = "${resource_type}-${idx}"
+          resource_type = resource_type
+          vnet_id       = vnet_id
+        }
+      ]
+    ]) : pair.key => pair
+  }
 }
