@@ -10,7 +10,7 @@ module "resource_group" {
   source      = "terraform-az-modules/resource-group/azure"
   version     = "1.0.0"
   name        = "app"
-  environment = "dev"
+  environment = "qa"
   location    = "eastus"
   label_order = ["name", "environment", "location"]
 }
@@ -22,8 +22,8 @@ module "vnet" {
   depends_on          = [module.resource_group]
   source              = "terraform-az-modules/vnet/azure"
   version             = "1.0.0"
-  name                = "dns"
-  environment         = "testing"
+  name                = "app"
+  environment         = "qa"
   resource_group_name = module.resource_group.resource_group_name
   location            = module.resource_group.resource_group_location
   address_spaces      = ["10.0.0.0/16"]
@@ -32,53 +32,38 @@ module "vnet" {
 ##-----------------------------------------------------------------------------
 ## Private DNS Zone module call
 ##-----------------------------------------------------------------------------
-module "private_dns" {
+module "custom_private_dns" {
   depends_on          = [module.resource_group, module.vnet]
   source              = "../.."
   resource_group_name = module.resource_group.resource_group_name
   private_dns_config = [
     {
-      resource_type = "key_vault"
+      resource_type = "custom_dns"
       vnet_ids      = [module.vnet.vnet_id]
-    },
-    {
-      resource_type = "storage_account"
-      vnet_ids      = [module.vnet.vnet_id]
+      zone_name     = "my.custom.zone.internal"
     }
   ]
 
   dns_records = {
-    # Records for key_vault private zone
-    "key_vault" = [
+    "my.custom.zone.internal" = [
       {
-        name    = "myvault" # This will create myvault.privatelink.vaultcore.azure.net
+        name    = "web"
         type    = "A"
         ttl     = 300
-        records = ["10.0.0.10"]
-      }
-    ],
-
-    # Records for storage_account private zone
-    "storage_account" = [
-      {
-        name    = "mystorage" # This will create mystorage.privatelink.blob.core.windows.net
-        type    = "CNAME"
-        ttl     = 300
-        records = ["mystorage.blob.core.windows.net"]
+        records = ["10.0.0.5"]
       },
       {
-        name    = "myqueue" # This will create myqueue.privatelink.queue.core.windows.net
+        name    = "db"
         type    = "CNAME"
         ttl     = 300
-        records = ["myqueue.queue.core.windows.net"]
+        records = ["db.internal.example.com"]
       }
     ]
   }
 
-
   #Tags
   location    = module.resource_group.resource_group_location
-  name        = "dns"
-  environment = "dev"
+  name        = "app"
+  environment = "qa"
 }
 

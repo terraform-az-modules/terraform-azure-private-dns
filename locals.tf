@@ -40,16 +40,20 @@ locals {
     azure_iot_hub             = "privatelink.azure-devices.net"
     azure_digital_twins       = "privatelink.digitaltwins.azure.net"
     azure_video_indexer       = "privatelink.api.videoindexer.ai"
+    # Catch-all for custom DNS zones
+    custom_dns = null
   }
 
-  enabled_configs = var.enable ? var.private_dns_config : []
-
-  zone_configs = { for cfg in var.private_dns_config : cfg.resource_type => cfg if contains(keys(local.dns_zone_map), cfg.resource_type) }
+  zone_configs = {
+    for cfg in var.private_dns_config :
+    cfg.resource_type => cfg
+    if contains(keys(local.dns_zone_map), cfg.resource_type) || cfg.zone_name != null
+  }
 
   resource_vnets = {
     for cfg in var.private_dns_config :
     cfg.resource_type => cfg.vnet_ids
-    if contains(keys(local.dns_zone_map), cfg.resource_type)
+    if contains(keys(local.dns_zone_map), cfg.resource_type) || cfg.zone_name != null
   }
 
   dns_vnet_link_map = {
@@ -59,8 +63,74 @@ locals {
           key           = "${resource_type}-${idx}"
           resource_type = resource_type
           vnet_id       = vnet_id
+          zone_name     = [for cfg in var.private_dns_config : cfg.zone_name if cfg.resource_type == resource_type][0]
         }
       ]
     ]) : pair.key => pair
   }
+
+  a_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key) # Use zone_key directly for custom zones
+      }) if record.type == "A"
+    ]
+  ])
+
+  cname_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key) # Use zone_key directly for custom zones
+      }) if record.type == "CNAME"
+    ]
+  ])
+
+  mx_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key)
+        records = [for r in record.records : {
+          preference = r.preference
+          exchange   = r.exchange
+        }]
+      }) if record.type == "MX"
+    ]
+  ])
+
+  txt_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key)
+      }) if record.type == "TXT"
+    ]
+  ])
+
+  srv_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key)
+        records = [for r in record.records : {
+          priority = r.priority
+          weight   = r.weight
+          port     = r.port
+          target   = r.target
+        }]
+      }) if record.type == "SRV"
+    ]
+  ])
+
+  ptr_records = flatten([
+    for zone_key, records in var.dns_records : [
+      for record in records : merge(record, {
+        zone_key  = zone_key
+        zone_name = try(local.dns_zone_map[zone_key], zone_key)
+      }) if record.type == "PTR"
+    ]
+  ])
+
 }
