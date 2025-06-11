@@ -75,7 +75,6 @@ module "private_dns" {
     ]
   }
 
-
   #Tags
   location    = module.resource_group.resource_group_location
   name        = "dns"
