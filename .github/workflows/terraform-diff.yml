@@ -1,0 +1,36 @@
+name: Terraform plan Difference
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  complete-example:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@master
+    with:
+      provider: 'azurerm'
+      terraform_directory: 'examples/complete'
+      target_branch: 'master'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+  custom-dns-example:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@master
+    with:
+      provider: 'azurerm'
+      terraform_directory: 'examples/custom_dns'
+      target_branch: 'master'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+  dns-with-multiple-vnet-example:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@master
+    with:
+      provider: 'azurerm'
+      terraform_directory: 'examples/dns_with_multiple_vnet'
+      target_branch: 'master'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
