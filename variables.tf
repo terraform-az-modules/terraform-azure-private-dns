@@ -9,7 +9,7 @@ variable "name" {
 
 variable "location" {
   type        = string
-  default     = null
+  default     = "eastus"
   description = "Azure region (e.g. `eastus`, `westus`)."
 }
 
