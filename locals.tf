@@ -21,7 +21,7 @@ locals {
     azure_site_recovery       = "privatelink.siterecovery.windowsazure.com"
     azure_automation          = "privatelink.agentsvc.azure-automation.net"
     azure_machine_learning    = "privatelink.api.azureml.ms"
-    azure_kubernetes          = "privatelink.${var.location}.azmk8s.io"
+    azure_kubernetes          = var.location != null ? "privatelink.${var.location}.azmk8s.io" : tobool("var.location must be set to create a private DNS zone for Azure Kubernetes")
     azure_redis               = "privatelink.redis.cache.windows.net"
     azure_search              = "privatelink.search.windows.net"
     azure_sql_sync            = "privatelink.database.windows.net"
@@ -32,7 +32,7 @@ locals {
     azure_app_config          = "privatelink.azconfig.io"
     azure_purview             = "privatelink.purview.azure.com"
     azure_purview_studio      = "privatelink.purviewstudio.azure.com"
-    azure_batch               = "privatelink.${var.location}.batch.azure.com"
+    azure_batch               = var.location != null ? "privatelink.${var.location}.batch.azure.com" : tobool("var.location must be set to create a private DNS zone for Azure Batch")
     azure_web_apps            = "privatelink.azurewebsites.net"
     azure_function_apps       = "privatelink.azurewebsites.net"
     azure_api_management      = "privatelink.azure-api.net"
